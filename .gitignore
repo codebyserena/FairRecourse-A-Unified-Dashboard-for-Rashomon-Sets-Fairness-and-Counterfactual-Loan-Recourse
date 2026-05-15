@@ -8,3 +8,4 @@ __pycache__/
 # Generated experiment outputs. Keep this commented if you intentionally
 # want to version the demo artifacts for presentation.
 # artifacts/
+artifacts/models/
