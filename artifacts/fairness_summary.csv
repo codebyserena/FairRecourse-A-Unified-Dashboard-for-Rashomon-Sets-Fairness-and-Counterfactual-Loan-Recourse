@@ -1,0 +1,3 @@
+,model_name,family,accuracy,total_unfairness
+most_fair,RandomForest_15,RandomForest,0.8138333333333333,0.598862134394682
+most_unfair,RandomForest_4,RandomForest,0.814,0.925691635245353

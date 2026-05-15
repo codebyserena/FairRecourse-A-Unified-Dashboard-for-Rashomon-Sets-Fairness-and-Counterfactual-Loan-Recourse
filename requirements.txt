@@ -1,0 +1,12 @@
+Flask
+scikit-learn
+xgboost
+dice-ml
+fairlearn
+plotly
+pandas
+numpy
+xlrd
+openpyxl
+shap
+gunicorn

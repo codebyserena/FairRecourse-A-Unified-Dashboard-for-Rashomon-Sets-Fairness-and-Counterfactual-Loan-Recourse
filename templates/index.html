@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block content %}
+<header>
+    <h1>Overview</h1>
+    <p class="subtitle">Credit Decision Research Prototype</p>
+</header>
+
+<div class="card-grid">
+    <div class="card">
+        <h3>Dataset</h3>
+        <div class="value">UCI Credit</div>
+        <p style="margin-top: 0.5rem; color: var(--text-secondary); font-size: 0.9rem;">Default of Credit Card Clients</p>
+    </div>
+    <div class="card">
+        <h3>Models Trained</h3>
+        <div class="value">{{ num_models }}</div>
+        <p style="margin-top: 0.5rem; color: var(--text-secondary); font-size: 0.9rem;">Various algorithms & hyperparams</p>
+    </div>
+    <div class="card">
+        <h3>Best Accuracy</h3>
+        <div class="value highlight">{{ best_acc }}</div>
+        <p style="margin-top: 0.5rem; color: var(--text-secondary); font-size: 0.9rem;">Highest performing model</p>
+    </div>
+    <div class="card">
+        <h3>Rashomon Set Size</h3>
+        <div class="value highlight">{{ rashomon_size }}</div>
+        <p style="margin-top: 0.5rem; color: var(--text-secondary); font-size: 0.9rem;">Models within 1% of best accuracy</p>
+    </div>
+</div>
+
+<div class="card" style="margin-bottom: 2rem;">
+    <h3 style="font-size: 1.2rem; color: var(--text-primary); margin-bottom: 1rem;">Research Insight</h3>
+    <p style="line-height: 1.6; color: var(--text-secondary);">
+        This dashboard demonstrates that while many models may achieve near-identical overall accuracy (forming a <strong>Rashomon Set</strong>), they can disagree significantly on individual predictions. 
+        <br><br>
+        This means that a decision to approve or reject a credit applicant is not just based on their data, but also arbitrarily dependent on which "equally good" model was selected. This instability affects the counterfactual recourse given to rejected applicants and the fairness metrics across demographic groups.
+    </p>
+</div>
+
+<div class="card">
+    <h3 style="font-size: 1.2rem; color: var(--text-primary); margin-bottom: 1rem;">Algorithmic Families Explored</h3>
+    <div id="familyChart" style="width: 100%; height: 350px;"></div>
+</div>
+
+<script>
+    const metricsData = {{ metrics_data | tojson }};
+    
+    // Count models by family
+    const familyCounts = {};
+    metricsData.forEach(d => {
+        familyCounts[d.family] = (familyCounts[d.family] || 0) + 1;
+    });
+
+    const trace = {
+        x: Object.keys(familyCounts),
+        y: Object.values(familyCounts),
+        type: 'bar',
+        marker: {
+            color: ['#06b6d4', '#8b5cf6', '#f43f5e', '#10b981', '#f59e0b'],
+            opacity: 0.8
+        }
+    };
+
+    const layout = {
+        title: 'Number of Models Trained per Algorithm',
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        font: { color: '#f8fafc', family: 'Inter' },
+        xaxis: { gridcolor: 'rgba(255,255,255,0.05)' },
+        yaxis: { gridcolor: 'rgba(255,255,255,0.05)' },
+        margin: { t: 40, b: 40, l: 40, r: 20 }
+    };
+
+    Plotly.newPlot('familyChart', [trace], layout);
+</script>
+{% endblock %}

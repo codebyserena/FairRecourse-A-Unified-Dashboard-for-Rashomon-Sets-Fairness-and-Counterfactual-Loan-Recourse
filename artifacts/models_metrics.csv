@@ -1,0 +1,41 @@
+model_name,family,accuracy,params,model_path,use_scaled
+LogisticRegression_1,LogisticRegression,0.8096666666666666,"{'solver': 'lbfgs', 'penalty': 'l2', 'max_iter': 1000, 'C': 100}",artifacts/models/LogisticRegression_1.pkl,True
+LogisticRegression_2,LogisticRegression,0.8098333333333333,"{'solver': 'liblinear', 'penalty': 'l2', 'max_iter': 1000, 'C': 10}",artifacts/models/LogisticRegression_2.pkl,True
+LogisticRegression_3,LogisticRegression,0.8025,"{'solver': 'lbfgs', 'penalty': 'l2', 'max_iter': 1000, 'C': 0.001}",artifacts/models/LogisticRegression_3.pkl,True
+LogisticRegression_4,LogisticRegression,0.8096666666666666,"{'solver': 'lbfgs', 'penalty': 'l2', 'max_iter': 1000, 'C': 10}",artifacts/models/LogisticRegression_4.pkl,True
+LogisticRegression_5,LogisticRegression,0.8095,"{'solver': 'liblinear', 'penalty': 'l2', 'max_iter': 1000, 'C': 0.1}",artifacts/models/LogisticRegression_5.pkl,True
+LogisticRegression_6,LogisticRegression,0.811,"{'solver': 'lbfgs', 'penalty': 'l2', 'max_iter': 1000, 'C': 0.01}",artifacts/models/LogisticRegression_6.pkl,True
+LogisticRegression_7,LogisticRegression,0.806,"{'solver': 'liblinear', 'penalty': 'l2', 'max_iter': 1000, 'C': 0.001}",artifacts/models/LogisticRegression_7.pkl,True
+LogisticRegression_8,LogisticRegression,0.8098333333333333,"{'solver': 'liblinear', 'penalty': 'l2', 'max_iter': 1000, 'C': 100}",artifacts/models/LogisticRegression_8.pkl,True
+LogisticRegression_9,LogisticRegression,0.8098333333333333,"{'solver': 'lbfgs', 'penalty': 'l2', 'max_iter': 1000, 'C': 0.1}",artifacts/models/LogisticRegression_9.pkl,True
+LogisticRegression_10,LogisticRegression,0.8096666666666666,"{'solver': 'liblinear', 'penalty': 'l2', 'max_iter': 1000, 'C': 1}",artifacts/models/LogisticRegression_10.pkl,True
+DecisionTree_1,DecisionTree,0.7456666666666667,"{'min_samples_split': 2, 'min_samples_leaf': 2, 'max_depth': None}",artifacts/models/DecisionTree_1.pkl,False
+DecisionTree_2,DecisionTree,0.8185,"{'min_samples_split': 5, 'min_samples_leaf': 4, 'max_depth': 7}",artifacts/models/DecisionTree_2.pkl,False
+DecisionTree_3,DecisionTree,0.818,"{'min_samples_split': 10, 'min_samples_leaf': 4, 'max_depth': 7}",artifacts/models/DecisionTree_3.pkl,False
+DecisionTree_4,DecisionTree,0.7551666666666667,"{'min_samples_split': 5, 'min_samples_leaf': 4, 'max_depth': None}",artifacts/models/DecisionTree_4.pkl,False
+DecisionTree_5,DecisionTree,0.8096666666666666,"{'min_samples_split': 10, 'min_samples_leaf': 4, 'max_depth': 10}",artifacts/models/DecisionTree_5.pkl,False
+DecisionTree_6,DecisionTree,0.7495,"{'min_samples_split': 10, 'min_samples_leaf': 2, 'max_depth': None}",artifacts/models/DecisionTree_6.pkl,False
+DecisionTree_7,DecisionTree,0.8211666666666667,"{'min_samples_split': 5, 'min_samples_leaf': 2, 'max_depth': 3}",artifacts/models/DecisionTree_7.pkl,False
+DecisionTree_8,DecisionTree,0.8188333333333333,"{'min_samples_split': 2, 'min_samples_leaf': 2, 'max_depth': 5}",artifacts/models/DecisionTree_8.pkl,False
+DecisionTree_9,DecisionTree,0.8211666666666667,"{'min_samples_split': 10, 'min_samples_leaf': 4, 'max_depth': 3}",artifacts/models/DecisionTree_9.pkl,False
+DecisionTree_10,DecisionTree,0.8211666666666667,"{'min_samples_split': 2, 'min_samples_leaf': 2, 'max_depth': 3}",artifacts/models/DecisionTree_10.pkl,False
+RandomForest_1,RandomForest,0.819,"{'n_estimators': 200, 'min_samples_split': 5, 'min_samples_leaf': 4, 'max_depth': 15}",artifacts/models/RandomForest_1.pkl,False
+RandomForest_2,RandomForest,0.8176666666666667,"{'n_estimators': 100, 'min_samples_split': 2, 'min_samples_leaf': 2, 'max_depth': 5}",artifacts/models/RandomForest_2.pkl,False
+RandomForest_3,RandomForest,0.8215,"{'n_estimators': 100, 'min_samples_split': 5, 'min_samples_leaf': 1, 'max_depth': 5}",artifacts/models/RandomForest_3.pkl,False
+RandomForest_4,RandomForest,0.814,"{'n_estimators': 200, 'min_samples_split': 2, 'min_samples_leaf': 1, 'max_depth': None}",artifacts/models/RandomForest_4.pkl,False
+RandomForest_5,RandomForest,0.8188333333333333,"{'n_estimators': 200, 'min_samples_split': 10, 'min_samples_leaf': 1, 'max_depth': 15}",artifacts/models/RandomForest_5.pkl,False
+RandomForest_6,RandomForest,0.8205,"{'n_estimators': 100, 'min_samples_split': 5, 'min_samples_leaf': 2, 'max_depth': 15}",artifacts/models/RandomForest_6.pkl,False
+RandomForest_7,RandomForest,0.819,"{'n_estimators': 50, 'min_samples_split': 5, 'min_samples_leaf': 1, 'max_depth': 10}",artifacts/models/RandomForest_7.pkl,False
+RandomForest_8,RandomForest,0.8186666666666667,"{'n_estimators': 50, 'min_samples_split': 2, 'min_samples_leaf': 4, 'max_depth': 10}",artifacts/models/RandomForest_8.pkl,False
+RandomForest_9,RandomForest,0.8183333333333334,"{'n_estimators': 200, 'min_samples_split': 5, 'min_samples_leaf': 2, 'max_depth': None}",artifacts/models/RandomForest_9.pkl,False
+RandomForest_10,RandomForest,0.8181666666666667,"{'n_estimators': 200, 'min_samples_split': 2, 'min_samples_leaf': 2, 'max_depth': 5}",artifacts/models/RandomForest_10.pkl,False
+RandomForest_11,RandomForest,0.814,"{'n_estimators': 50, 'min_samples_split': 2, 'min_samples_leaf': 1, 'max_depth': None}",artifacts/models/RandomForest_11.pkl,False
+RandomForest_12,RandomForest,0.8198333333333333,"{'n_estimators': 100, 'min_samples_split': 10, 'min_samples_leaf': 4, 'max_depth': 15}",artifacts/models/RandomForest_12.pkl,False
+RandomForest_13,RandomForest,0.817,"{'n_estimators': 50, 'min_samples_split': 2, 'min_samples_leaf': 1, 'max_depth': 5}",artifacts/models/RandomForest_13.pkl,False
+RandomForest_14,RandomForest,0.8206666666666667,"{'n_estimators': 200, 'min_samples_split': 10, 'min_samples_leaf': 4, 'max_depth': 15}",artifacts/models/RandomForest_14.pkl,False
+RandomForest_15,RandomForest,0.8138333333333333,"{'n_estimators': 50, 'min_samples_split': 2, 'min_samples_leaf': 4, 'max_depth': 5}",artifacts/models/RandomForest_15.pkl,False
+GradientBoosting_1,GradientBoosting,0.8196666666666667,"{'n_estimators': 50, 'max_depth': 5, 'learning_rate': 0.2}",artifacts/models/GradientBoosting_1.pkl,False
+GradientBoosting_2,GradientBoosting,0.8195,"{'n_estimators': 100, 'max_depth': 3, 'learning_rate': 0.2}",artifacts/models/GradientBoosting_2.pkl,False
+GradientBoosting_3,GradientBoosting,0.8208333333333333,"{'n_estimators': 50, 'max_depth': 3, 'learning_rate': 0.05}",artifacts/models/GradientBoosting_3.pkl,False
+GradientBoosting_4,GradientBoosting,0.8206666666666667,"{'n_estimators': 50, 'max_depth': 3, 'learning_rate': 0.2}",artifacts/models/GradientBoosting_4.pkl,False
+GradientBoosting_5,GradientBoosting,0.8198333333333333,"{'n_estimators': 100, 'max_depth': 3, 'learning_rate': 0.1}",artifacts/models/GradientBoosting_5.pkl,False

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block content %}
+<header>
+    <h1>Rashomon Explorer</h1>
+    <p class="subtitle">Equally accurate models disagreeing on individual lives.</p>
+</header>
+
+<div class="card" style="margin-bottom: 2rem;">
+    <h3 style="font-size: 1.2rem; margin-bottom: 1rem;">Accuracy Distribution of the Rashomon Set</h3>
+    <div id="accuracyHist" style="width: 100%; height: 350px;"></div>
+</div>
+
+<div class="card">
+    <h3 style="font-size: 1.2rem; margin-bottom: 1rem;">Most Unstable Applicants</h3>
+    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+        These applicants cause the most disagreement among the near-optimal models. An instability score near 1.0 means exactly half the models approve and half reject them.
+    </p>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Applicant ID (Index)</th>
+                <th>Approvals</th>
+                <th>Rejections</th>
+                <th>Instability Score</th>
+                <th>Majority Decision</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in applicants %}
+            <tr>
+                <td>#{{ app.applicant_index }}</td>
+                <td style="color: var(--success); font-weight: 600;">{{ app.approvals }} models</td>
+                <td style="color: var(--danger); font-weight: 600;">{{ app.rejects }} models</td>
+                <td>{{ "%.2f"|format(app.instability_score) }}</td>
+                <td>
+                    {% if app.approval_rate >= 0.5 %}
+                    <span class="badge approve">Approve</span>
+                    {% else %}
+                    <span class="badge reject">Reject</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const rashomonData = {{ rashomon_data | tojson }};
+    
+    const trace = {
+        x: rashomonData.map(d => d.accuracy),
+        type: 'histogram',
+        marker: {
+            color: '#8b5cf6',
+            line: {
+                color: 'rgba(255,255,255,0.2)',
+                width: 1
+            }
+        },
+        opacity: 0.75
+    };
+
+    const layout = {
+        title: 'Accuracy Histogram (Rashomon Set)',
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        font: { color: '#f8fafc', family: 'Inter' },
+        xaxis: { title: 'Accuracy', gridcolor: 'rgba(255,255,255,0.05)' },
+        yaxis: { title: 'Count', gridcolor: 'rgba(255,255,255,0.05)' },
+        margin: { t: 40, b: 40, l: 40, r: 20 },
+        bargap: 0.05
+    };
+
+    Plotly.newPlot('accuracyHist', [trace], layout);
+</script>
+{% endblock %}
