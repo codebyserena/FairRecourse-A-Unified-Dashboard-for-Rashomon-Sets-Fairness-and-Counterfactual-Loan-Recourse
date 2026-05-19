@@ -1,49 +1,88 @@
 {% extends "base.html" %}
 {% block content %}
 <header>
+    <p class="eyebrow">Predictive Multiplicity</p>
     <h1>Rashomon Explorer</h1>
-    <p class="subtitle">Equally accurate models disagreeing on individual lives.</p>
+    <p class="subtitle">Near-equivalent models disagreeing on individual applicants.</p>
 </header>
 
-<div class="card" style="margin-bottom: 2rem;">
-    <h3 style="font-size: 1.2rem; margin-bottom: 1rem;">Accuracy Distribution of the Rashomon Set</h3>
-    <div id="accuracyHist" style="width: 100%; height: 350px;"></div>
-</div>
+<section class="metric-grid three">
+    <div class="metric-card">
+        <h3>Rashomon Models</h3>
+        <div class="value">{{ model_count }}</div>
+        <p>Near-optimal candidates in scope</p>
+    </div>
+    <div class="metric-card">
+        <h3>Top Instability</h3>
+        <div class="value">{{ "%.2f"|format(top_applicant.instability_score) }}</div>
+        <p>Highest observed disagreement</p>
+    </div>
+    <div class="metric-card">
+        <h3>Top Split</h3>
+        <div class="value">{{ top_applicant.approvals }} / {{ top_applicant.rejects }}</div>
+        <p>Approve vs. reject votes</p>
+    </div>
+</section>
 
-<div class="card">
-    <h3 style="font-size: 1.2rem; margin-bottom: 1rem;">Most Unstable Applicants</h3>
-    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
-        These applicants cause the most disagreement among the near-optimal models. An instability score near 1.0 means exactly half the models approve and half reject them.
-    </p>
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>Applicant ID (Index)</th>
-                <th>Approvals</th>
-                <th>Rejections</th>
-                <th>Instability Score</th>
-                <th>Majority Decision</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for app in applicants %}
-            <tr>
-                <td>#{{ app.applicant_index }}</td>
-                <td style="color: var(--success); font-weight: 600;">{{ app.approvals }} models</td>
-                <td style="color: var(--danger); font-weight: 600;">{{ app.rejects }} models</td>
-                <td>{{ "%.2f"|format(app.instability_score) }}</td>
-                <td>
-                    {% if app.approval_rate >= 0.5 %}
-                    <span class="badge approve">Approve</span>
-                    {% else %}
-                    <span class="badge reject">Reject</span>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+<section class="content-grid two-column">
+    <div class="panel">
+        <div class="section-heading">
+            <h2>Accuracy Distribution</h2>
+            <span class="pill">Rashomon set</span>
+        </div>
+        <div id="accuracyHist" class="chart"></div>
+    </div>
+
+    <div class="panel">
+        <div class="section-heading">
+            <h2>Decision Split</h2>
+            <span class="pill">Most unstable</span>
+        </div>
+        <div id="splitChart" class="chart"></div>
+    </div>
+</section>
+
+<section class="panel">
+    <div class="section-heading">
+        <h2>Most Unstable Applicants</h2>
+        <span class="pill">Top {{ applicants|length }}</span>
+    </div>
+    <div class="table-wrap">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Applicant</th>
+                    <th>Approvals</th>
+                    <th>Rejections</th>
+                    <th>Instability</th>
+                    <th>Majority Decision</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in applicants %}
+                <tr>
+                    <td>#{{ app.applicant_index }}</td>
+                    <td><span class="positive">{{ app.approvals }} models</span></td>
+                    <td><span class="negative">{{ app.rejects }} models</span></td>
+                    <td>
+                        <div class="score-cell">
+                            <span>{{ "%.2f"|format(app.instability_score) }}</span>
+                            <div class="score-bar"><span style="width: {{ app.instability_score * 100 }}%"></span></div>
+                        </div>
+                    </td>
+                    <td>
+                        {% if app.approval_rate >= 0.5 %}
+                        <span class="badge approve">Approve</span>
+                        {% else %}
+                        <span class="badge reject">Reject</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
 
 <script>
     const rashomonData = {{ rashomon_data | tojson }};
@@ -62,16 +101,34 @@
     };
 
     const layout = {
-        title: 'Accuracy Histogram (Rashomon Set)',
         paper_bgcolor: 'rgba(0,0,0,0)',
         plot_bgcolor: 'rgba(0,0,0,0)',
         font: { color: '#f8fafc', family: 'Inter' },
-        xaxis: { title: 'Accuracy', gridcolor: 'rgba(255,255,255,0.05)' },
+        xaxis: { title: 'Accuracy', tickformat: '.1%', gridcolor: 'rgba(255,255,255,0.05)' },
         yaxis: { title: 'Count', gridcolor: 'rgba(255,255,255,0.05)' },
-        margin: { t: 40, b: 40, l: 40, r: 20 },
+        margin: { t: 20, b: 48, l: 44, r: 20 },
         bargap: 0.05
     };
 
-    Plotly.newPlot('accuracyHist', [trace], layout);
+    const splitTrace = {
+        labels: ['Approvals', 'Rejections'],
+        values: [{{ top_applicant.approvals }}, {{ top_applicant.rejects }}],
+        type: 'pie',
+        hole: 0.62,
+        marker: { colors: ['#14b8a6', '#e11d48'] },
+        textinfo: 'label+value',
+        hoverinfo: 'label+value'
+    };
+
+    const splitLayout = {
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+        font: { color: '#f8fafc', family: 'Inter' },
+        margin: { t: 20, b: 20, l: 20, r: 20 },
+        showlegend: false
+    };
+
+    Plotly.newPlot('accuracyHist', [trace], layout, { responsive: true, displayModeBar: false });
+    Plotly.newPlot('splitChart', [splitTrace], splitLayout, { responsive: true, displayModeBar: false });
 </script>
 {% endblock %}

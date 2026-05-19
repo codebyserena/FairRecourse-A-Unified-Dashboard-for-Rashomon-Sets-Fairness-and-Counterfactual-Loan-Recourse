@@ -1,80 +1,94 @@
 {% extends "base.html" %}
 {% block content %}
 <header>
+    <p class="eyebrow">Actionability Under Model Choice</p>
     <h1>Recourse & Explainability</h1>
     <p class="subtitle">Why was this disputed applicant rejected, and how can they fix it?</p>
 </header>
 
-<div class="card" style="margin-bottom: 2rem; border-left: 4px solid var(--danger);">
-    <h3>Current Decision</h3>
-    <div class="value" style="color: var(--danger); font-size: 1.5rem; margin-top: 0.5rem;">Rejected</div>
-</div>
+<section class="metric-grid three">
+    <div class="metric-card accent-risk">
+        <h3>Current Decision</h3>
+        <div class="value">Rejected</div>
+        <p>For the disputed applicant selected from the instability analysis</p>
+    </div>
+    <div class="metric-card">
+        <h3>Models Compared</h3>
+        <div class="value">{{ grouped_cfs|length }}</div>
+        <p>Near-optimal models with generated counterfactuals</p>
+    </div>
+    <div class="metric-card">
+        <h3>Applicant Limit</h3>
+        <div class="value">{{ "{:,.0f}".format(query.limit_bal) if query.limit_bal is defined else "N/A" }}</div>
+        <p>Original credit limit balance</p>
+    </div>
+</section>
 
-<h3 style="margin-bottom: 1rem;">SHAP Feature Importance (Why?)</h3>
-<div class="card" style="margin-bottom: 2rem;">
-    <p style="color: var(--text-secondary); margin-bottom: 1rem;">
-        The top features contributing to the rejection, according to the best model. Positive SHAP values push the decision towards "Default" (Reject).
-    </p>
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>Feature</th>
-                <th>Current Value</th>
-                <th>SHAP Impact</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for s in shap %}
-            <tr>
-                <td style="font-weight: 600;">{{ s.feature }}</td>
-                <td>{{ "%.2f"|format(s.feature_value) }}</td>
-                <td>
-                    <span style="color: {% if s.shap_value > 0 %}var(--danger){% else %}var(--success){% endif %}; font-weight: 600;">
-                        {{ "%.4f"|format(s.shap_value) }}
-                    </span>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+<section class="content-grid two-column">
+    <div class="panel">
+        <div class="section-heading">
+            <h2>SHAP Feature Importance</h2>
+            <span class="pill">Top {{ shap|length }}</span>
+        </div>
+        <div class="table-wrap">
+            <table class="data-table compact">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Current</th>
+                        <th>Impact</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in shap %}
+                    <tr>
+                        <td>{{ s.feature }}</td>
+                        <td>{{ "%.2f"|format(s.feature_value) }}</td>
+                        <td>
+                            <span class="{% if s.shap_value > 0 %}negative{% else %}positive{% endif %}">
+                                {{ "%.4f"|format(s.shap_value) }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-<h3 style="margin-bottom: 1rem;">Multi-Model Recourse Comparison</h3>
-<p style="color: var(--text-secondary); margin-bottom: 1rem;">
-    Different near-optimal models suggest completely different paths to approval. The chart below visualizes the required feature changes for the first available model.
-</p>
+    <div class="panel">
+        <div class="section-heading">
+            <h2>Required Changes</h2>
+            <span class="pill">First model</span>
+        </div>
+        <div id="recourseChart" class="chart"></div>
+    </div>
+</section>
 
-<div class="card" style="margin-bottom: 2rem;">
-    <div id="recourseChart" style="width: 100%; height: 400px;"></div>
-</div>
-
-<div class="card-grid" style="margin-top: 1rem;">
+<section class="recourse-grid">
     {% for model_name, cfs in grouped_cfs.items() %}
-    <div class="card">
-        <h3 style="color: var(--text-primary); margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
-            Model: {{ model_name }}
-        </h3>
+    <div class="panel recourse-panel">
+        <div class="section-heading">
+            <h2>{{ model_name }}</h2>
+            <span class="pill">{{ changed_counts[model_name] }} changes</span>
+        </div>
         
         {% for cf in cfs %}
-        <ul style="list-style: none; color: var(--text-secondary); line-height: 1.8; margin-bottom: 1rem;">
+        <ul class="change-list">
             {% for key, val in cf.items() %}
-                {% if key not in ['default', 'model_name', 'family'] and query[key] != val %}
+                {% if key not in ['default', 'model_name', 'family'] and query.get(key) != val %}
                     <li>
                         <strong>{{ key }}:</strong> Change from 
-                        <span style="text-decoration: line-through; opacity: 0.7;">{{ query[key] }}</span> 
-                        to <span style="color: var(--accent-cyan); font-weight: 600;">{{ val }}</span>
+                        <span class="old-value">{{ query[key] }}</span> 
+                        to <span class="new-value">{{ val }}</span>
                     </li>
                 {% endif %}
             {% endfor %}
         </ul>
         {% endfor %}
-        
-        <div style="margin-top: auto;">
-            <span class="badge plausible">Required Changes</span>
-        </div>
     </div>
     {% endfor %}
-</div>
+</section>
 
 <script>
     const groupedCfs = {{ grouped_cfs | tojson }};
@@ -103,7 +117,7 @@
         y: originalVals,
         name: 'Original Value',
         type: 'bar',
-        marker: { color: '#ef4444' }
+        marker: { color: '#e11d48' }
     };
     
     const traceNew = {
@@ -111,22 +125,22 @@
         y: newVals,
         name: 'Required Value',
         type: 'bar',
-        marker: { color: '#10b981' }
+        marker: { color: '#14b8a6' }
     };
     
     const layout = {
-        title: `Required Feature Changes (Model: ${firstModel || 'N/A'})`,
         barmode: 'group',
         paper_bgcolor: 'rgba(0,0,0,0)',
         plot_bgcolor: 'rgba(0,0,0,0)',
         font: { color: '#f8fafc', family: 'Inter' },
         xaxis: { gridcolor: 'rgba(255,255,255,0.05)' },
         yaxis: { gridcolor: 'rgba(255,255,255,0.05)', type: 'log', title: 'Value (Log Scale)' },
-        margin: { t: 40, b: 60, l: 60, r: 20 }
+        margin: { t: 20, b: 64, l: 64, r: 20 },
+        legend: { orientation: 'h', y: 1.08 }
     };
 
     if (cf && changedFeatures.length > 0) {
-        Plotly.newPlot('recourseChart', [traceOriginal, traceNew], layout);
+        Plotly.newPlot('recourseChart', [traceOriginal, traceNew], layout, { responsive: true, displayModeBar: false });
     } else {
         document.getElementById('recourseChart').innerHTML = "<p style='padding: 2rem; color: var(--text-secondary); text-align: center;'>No changes required or counterfactual not found.</p>";
     }

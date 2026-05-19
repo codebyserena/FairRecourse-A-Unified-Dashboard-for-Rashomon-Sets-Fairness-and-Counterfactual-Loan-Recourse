@@ -1,66 +1,98 @@
 {% extends "base.html" %}
 {% block content %}
 <header>
+    <p class="eyebrow">Fairness Variance</p>
     <h1>Fairness Audit</h1>
     <p class="subtitle">Accuracy vs. Fairness across sensitive features in the Rashomon Set</p>
 </header>
 
-<div class="card-grid">
-    <div class="card" style="border-left: 4px solid var(--success);">
+{% if summary %}
+<section class="metric-grid two">
+    <div class="metric-card accent-good">
         <h3>Most Fair Near-Optimal Model</h3>
-        <div class="value" style="font-size: 1.5rem; margin-top: 0.5rem;">{{ summary['most_fair']['model_name'] }}</div>
-        <p style="margin-top: 0.5rem; color: var(--text-secondary); font-size: 0.9rem;">
-            Accuracy: {{ "%.2f"|format(summary['most_fair']['accuracy'] * 100) }}% <br>
-            Total Fairness Gap: {{ "%.4f"|format(summary['most_fair']['total_unfairness']) }}
-        </p>
+        <div class="value model-name">{{ summary['most_fair']['model_name'] }}</div>
+        <p>{{ "%.2f"|format(summary['most_fair']['accuracy'] * 100) }}% accuracy · {{ "%.4f"|format(summary['most_fair']['total_unfairness']) }} total gap</p>
     </div>
     
-    <div class="card" style="border-left: 4px solid var(--danger);">
+    <div class="metric-card accent-risk">
         <h3>Most Unfair but Accurate</h3>
-        <div class="value" style="font-size: 1.5rem; margin-top: 0.5rem;">{{ summary['most_unfair']['model_name'] }}</div>
-        <p style="margin-top: 0.5rem; color: var(--text-secondary); font-size: 0.9rem;">
-            Accuracy: {{ "%.2f"|format(summary['most_unfair']['accuracy'] * 100) }}% <br>
-            Total Fairness Gap: {{ "%.4f"|format(summary['most_unfair']['total_unfairness']) }}
-        </p>
+        <div class="value model-name">{{ summary['most_unfair']['model_name'] }}</div>
+        <p>{{ "%.2f"|format(summary['most_unfair']['accuracy'] * 100) }}% accuracy · {{ "%.4f"|format(summary['most_unfair']['total_unfairness']) }} total gap</p>
     </div>
-</div>
+</section>
+{% endif %}
 
-<div class="card" style="margin-bottom: 2rem;">
-    <h3>Accuracy vs. Fairness Trade-off</h3>
-    <div id="scatterPlot" style="width: 100%; height: 500px; margin-top: 1rem;"></div>
-</div>
+<section class="content-grid two-column">
+    <div class="panel">
+        <div class="section-heading">
+            <h2>Accuracy vs. Fairness Gap</h2>
+            <span class="pill">By sensitive feature</span>
+        </div>
+        <div id="scatterPlot" class="chart tall"></div>
+    </div>
+
+    <div class="panel">
+        <div class="section-heading">
+            <h2>Feature Gap Ranges</h2>
+            <span class="pill">{{ feature_stats|length }} features</span>
+        </div>
+        <div class="compact-table-wrap">
+            <table class="data-table compact">
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+                        <th>Mean</th>
+                        <th>Min</th>
+                        <th>Max</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for feature in feature_stats %}
+                    <tr>
+                        <td>{{ feature.sensitive_feature }}</td>
+                        <td>{{ "%.4f"|format(feature.mean_gap) }}</td>
+                        <td>{{ "%.4f"|format(feature.min_gap) }}</td>
+                        <td>{{ "%.4f"|format(feature.max_gap) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
 
 <script>
     const fairnessData = {{ fairness | tojson }};
     
-    const trace1 = {
-        x: fairnessData.map(d => d.total_unfairness),
-        y: fairnessData.map(d => d.accuracy),
-        text: fairnessData.map(d => d.model_name),
+    const features = [...new Set(fairnessData.map(d => d.sensitive_feature))];
+    const colors = ['#14b8a6', '#f59e0b', '#e11d48', '#64748b'];
+    const traces = features.map((feature, index) => ({
+        x: fairnessData.filter(d => d.sensitive_feature === feature).map(d => d.total_unfairness),
+        y: fairnessData.filter(d => d.sensitive_feature === feature).map(d => d.accuracy),
+        text: fairnessData.filter(d => d.sensitive_feature === feature).map(d => d.model_name),
+        name: feature,
         mode: 'markers',
         type: 'scatter',
         marker: {
             size: 12,
-            color: fairnessData.map(d => d.total_unfairness),
-            colorscale: 'Viridis',
-            showscale: true,
-            colorbar: {
-                title: 'Total Unfairness'
-            }
-        }
-    };
+            color: colors[index % colors.length],
+            line: { color: 'rgba(255,255,255,0.35)', width: 1 }
+        },
+        hovertemplate: '%{text}<br>Feature: ' + feature + '<br>Gap: %{x:.4f}<br>Accuracy: %{y:.2%}<extra></extra>'
+    }));
 
     const layout = {
-        title: 'Rashomon Set: Accuracy vs. Fairness Gap',
         xaxis: { title: 'Fairness Gap (DP Diff + EO Diff)', color: '#f8fafc', gridcolor: 'rgba(255,255,255,0.1)' },
-        yaxis: { title: 'Accuracy', color: '#f8fafc', gridcolor: 'rgba(255,255,255,0.1)' },
+        yaxis: { title: 'Accuracy', tickformat: '.1%', color: '#f8fafc', gridcolor: 'rgba(255,255,255,0.1)' },
         paper_bgcolor: 'rgba(0,0,0,0)',
         plot_bgcolor: 'rgba(0,0,0,0)',
         font: { color: '#f8fafc', family: 'Inter' },
-        hovermode: 'closest'
+        hovermode: 'closest',
+        legend: { orientation: 'h', y: 1.08 },
+        margin: { t: 40, b: 56, l: 64, r: 24 }
     };
 
-    Plotly.newPlot('scatterPlot', [trace1], layout);
+    Plotly.newPlot('scatterPlot', traces, layout, { responsive: true, displayModeBar: false });
 </script>
 
 {% endblock %}

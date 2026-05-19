@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template
 import pandas as pd
 import os
 
@@ -73,16 +73,29 @@ def overview():
         return _artifact_error("Data is not ready yet.")
         
     best_acc = data['metrics']['accuracy'].max()
+    avg_acc = data['metrics']['accuracy'].mean()
     num_models = len(data['metrics'])
     rashomon_size = len(data['rashomon'])
+    rashomon_share = rashomon_size / num_models if num_models else 0
+    best_model = data['metrics'].sort_values('accuracy', ascending=False).iloc[0].to_dict()
+    family_stats = (
+        data['metrics']
+        .groupby('family', as_index=False)
+        .agg(count=('model_name', 'count'), best_accuracy=('accuracy', 'max'), mean_accuracy=('accuracy', 'mean'))
+        .sort_values('best_accuracy', ascending=False)
+        .to_dict(orient='records')
+    )
     
-    # Pass metrics for the overview chart
     metrics_data = data['metrics'].to_dict(orient='records')
     
     return render_template('index.html', 
                           best_acc=f"{best_acc:.2%}", 
+                          avg_acc=f"{avg_acc:.2%}",
                           num_models=num_models, 
                           rashomon_size=rashomon_size,
+                          rashomon_share=f"{rashomon_share:.0%}",
+                          best_model=best_model,
+                          family_stats=family_stats,
                           metrics_data=metrics_data)
 
 @app.route('/rashomon')
@@ -93,7 +106,15 @@ def rashomon_view():
 
     applicants = data['applicants'].to_dict(orient='records')
     rashomon_data = data['rashomon'].to_dict(orient='records')
-    return render_template('rashomon.html', applicants=applicants, rashomon_data=rashomon_data)
+    top_applicant = applicants[0] if applicants else {}
+    model_count = len(data['rashomon'])
+    return render_template(
+        'rashomon.html',
+        applicants=applicants,
+        rashomon_data=rashomon_data,
+        top_applicant=top_applicant,
+        model_count=model_count,
+    )
 
 @app.route('/recourse')
 def recourse_view():
@@ -113,8 +134,22 @@ def recourse_view():
         if model_name not in grouped_cfs:
             grouped_cfs[model_name] = []
         grouped_cfs[model_name].append(cf)
+
+    changed_counts = {}
+    for model_name, model_cfs in grouped_cfs.items():
+        changed_counts[model_name] = sum(
+            1
+            for key, value in model_cfs[0].items()
+            if key not in ['default', 'model_name', 'family'] and query.get(key) != value
+        )
         
-    return render_template('recourse.html', grouped_cfs=grouped_cfs, query=query, shap=shap_vals)
+    return render_template(
+        'recourse.html',
+        grouped_cfs=grouped_cfs,
+        query=query,
+        shap=shap_vals,
+        changed_counts=changed_counts,
+    )
 
 @app.route('/fairness')
 def fairness_view():
@@ -124,8 +159,21 @@ def fairness_view():
 
     fairness = data['fairness'].to_dict(orient='records') if data['fairness'] is not None else []
     summary = data['fairness_summary'].to_dict(orient='index') if data['fairness_summary'] is not None else {}
+    feature_stats = []
+    if data['fairness'] is not None:
+        feature_stats = (
+            data['fairness']
+            .groupby('sensitive_feature', as_index=False)
+            .agg(
+                min_gap=('total_unfairness', 'min'),
+                max_gap=('total_unfairness', 'max'),
+                mean_gap=('total_unfairness', 'mean'),
+            )
+            .sort_values('mean_gap', ascending=False)
+            .to_dict(orient='records')
+        )
     
-    return render_template('fairness.html', fairness=fairness, summary=summary)
+    return render_template('fairness.html', fairness=fairness, summary=summary, feature_stats=feature_stats)
 
 @app.route('/summary')
 def summary_view():

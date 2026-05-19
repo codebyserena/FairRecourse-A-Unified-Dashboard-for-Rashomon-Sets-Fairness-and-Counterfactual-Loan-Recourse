@@ -1,76 +1,115 @@
 {% extends "base.html" %}
 {% block content %}
 <header>
-    <h1>Overview</h1>
-    <p class="subtitle">Credit Decision Research Prototype</p>
+    <p class="eyebrow">Credit Decision Research Prototype</p>
+    <h1>Model Choice Changes the Story</h1>
+    <p class="subtitle">A near-optimal model pool can look stable in aggregate while disagreeing sharply for individual applicants.</p>
 </header>
 
-<div class="card-grid">
-    <div class="card">
+<section class="metric-grid">
+    <div class="metric-card">
         <h3>Dataset</h3>
         <div class="value">UCI Credit</div>
-        <p style="margin-top: 0.5rem; color: var(--text-secondary); font-size: 0.9rem;">Default of Credit Card Clients</p>
+        <p>Default of Credit Card Clients</p>
     </div>
-    <div class="card">
+    <div class="metric-card">
         <h3>Models Trained</h3>
         <div class="value">{{ num_models }}</div>
-        <p style="margin-top: 0.5rem; color: var(--text-secondary); font-size: 0.9rem;">Various algorithms & hyperparams</p>
+        <p>{{ rashomon_share }} landed in the Rashomon set</p>
     </div>
-    <div class="card">
+    <div class="metric-card">
         <h3>Best Accuracy</h3>
-        <div class="value highlight">{{ best_acc }}</div>
-        <p style="margin-top: 0.5rem; color: var(--text-secondary); font-size: 0.9rem;">Highest performing model</p>
+        <div class="value">{{ best_acc }}</div>
+        <p>{{ best_model.model_name }} leads the pool</p>
     </div>
-    <div class="card">
-        <h3>Rashomon Set Size</h3>
-        <div class="value highlight">{{ rashomon_size }}</div>
-        <p style="margin-top: 0.5rem; color: var(--text-secondary); font-size: 0.9rem;">Models within 1% of best accuracy</p>
+    <div class="metric-card">
+        <h3>Average Accuracy</h3>
+        <div class="value">{{ avg_acc }}</div>
+        <p>Across all trained candidates</p>
     </div>
-</div>
+</section>
 
-<div class="card" style="margin-bottom: 2rem;">
-    <h3 style="font-size: 1.2rem; color: var(--text-primary); margin-bottom: 1rem;">Research Insight</h3>
-    <p style="line-height: 1.6; color: var(--text-secondary);">
-        This dashboard demonstrates that while many models may achieve near-identical overall accuracy (forming a <strong>Rashomon Set</strong>), they can disagree significantly on individual predictions. 
-        <br><br>
-        This means that a decision to approve or reject a credit applicant is not just based on their data, but also arbitrarily dependent on which "equally good" model was selected. This instability affects the counterfactual recourse given to rejected applicants and the fairness metrics across demographic groups.
-    </p>
-</div>
+<section class="content-grid two-column">
+    <div class="panel narrative-panel">
+        <h2>Research Insight</h2>
+        <p>
+            Many models achieve near-identical test accuracy, yet still disagree on individual credit decisions.
+            The project makes that disagreement visible, then follows it into recourse and fairness outcomes.
+        </p>
+        <div class="insight-list">
+            <span>Rashomon set: <strong>{{ rashomon_size }}</strong> models</span>
+            <span>Tolerance: <strong>within 1%</strong> of best accuracy</span>
+            <span>Best family: <strong>{{ best_model.family }}</strong></span>
+        </div>
+    </div>
 
-<div class="card">
-    <h3 style="font-size: 1.2rem; color: var(--text-primary); margin-bottom: 1rem;">Algorithmic Families Explored</h3>
-    <div id="familyChart" style="width: 100%; height: 350px;"></div>
-</div>
+    <div class="panel">
+        <div class="section-heading">
+            <h2>Family Performance</h2>
+            <span class="pill">{{ family_stats|length }} families</span>
+        </div>
+        <div class="compact-table-wrap">
+            <table class="data-table compact">
+                <thead>
+                    <tr>
+                        <th>Family</th>
+                        <th>Models</th>
+                        <th>Best</th>
+                        <th>Mean</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for family in family_stats %}
+                    <tr>
+                        <td>{{ family.family }}</td>
+                        <td>{{ family.count }}</td>
+                        <td>{{ "%.2f"|format(family.best_accuracy * 100) }}%</td>
+                        <td>{{ "%.2f"|format(family.mean_accuracy * 100) }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<section class="panel">
+    <div class="section-heading">
+        <h2>Model Accuracy Landscape</h2>
+        <span class="pill">All candidates</span>
+    </div>
+    <div id="accuracyLandscape" class="chart"></div>
+</section>
 
 <script>
     const metricsData = {{ metrics_data | tojson }};
-    
-    // Count models by family
-    const familyCounts = {};
-    metricsData.forEach(d => {
-        familyCounts[d.family] = (familyCounts[d.family] || 0) + 1;
-    });
 
-    const trace = {
-        x: Object.keys(familyCounts),
-        y: Object.values(familyCounts),
-        type: 'bar',
+    const families = [...new Set(metricsData.map(d => d.family))];
+    const traces = families.map((family, index) => ({
+        x: metricsData.filter(d => d.family === family).map(d => d.accuracy),
+        y: metricsData.filter(d => d.family === family).map(d => family),
+        text: metricsData.filter(d => d.family === family).map(d => d.model_name),
+        name: family,
+        type: 'scatter',
+        mode: 'markers',
         marker: {
-            color: ['#06b6d4', '#8b5cf6', '#f43f5e', '#10b981', '#f59e0b'],
-            opacity: 0.8
-        }
-    };
+            size: 12,
+            color: ['#14b8a6', '#f59e0b', '#e11d48', '#64748b'][index % 4],
+            line: { color: 'rgba(255,255,255,0.35)', width: 1 }
+        },
+        hovertemplate: '%{text}<br>Accuracy: %{x:.2%}<extra></extra>'
+    }));
 
     const layout = {
-        title: 'Number of Models Trained per Algorithm',
         paper_bgcolor: 'rgba(0,0,0,0)',
         plot_bgcolor: 'rgba(0,0,0,0)',
         font: { color: '#f8fafc', family: 'Inter' },
-        xaxis: { gridcolor: 'rgba(255,255,255,0.05)' },
-        yaxis: { gridcolor: 'rgba(255,255,255,0.05)' },
-        margin: { t: 40, b: 40, l: 40, r: 20 }
+        xaxis: { title: 'Accuracy', tickformat: '.1%', gridcolor: 'rgba(255,255,255,0.06)' },
+        yaxis: { title: '', gridcolor: 'rgba(255,255,255,0.04)' },
+        margin: { t: 20, b: 48, l: 130, r: 20 },
+        showlegend: false
     };
 
-    Plotly.newPlot('familyChart', [trace], layout);
+    Plotly.newPlot('accuracyLandscape', traces, layout, { responsive: true, displayModeBar: false });
 </script>
 {% endblock %}

@@ -1,49 +1,55 @@
 {% extends "base.html" %}
 {% block content %}
 <header>
+    <p class="eyebrow">Research Narrative</p>
     <h1>Research Summary</h1>
     <p class="subtitle">The Illusion of Unique Recourse in Algorithmic Lending</p>
 </header>
 
-<div class="card" style="margin-bottom: 2rem; border-left: 4px solid var(--accent);">
-    <h3 style="font-size: 1.3rem; margin-bottom: 1rem; color: var(--text-primary);">Abstract & Motivation</h3>
-    <p style="line-height: 1.8; color: var(--text-secondary);">
+<section class="panel narrative-panel">
+    <h2>Abstract & Motivation</h2>
+    <p>
         In contemporary machine learning for high-stakes domains (e.g., credit lending, criminal justice), researchers frequently encounter the <strong>Rashomon Effect</strong>—a multiplicity of models that achieve statistically indistinguishable out-of-sample performance yet employ fundamentally different internal logic. 
-        <br><br>
+    </p>
+    <p>
         While predictive multiplicity is well-documented, its downstream effects on <strong>Algorithmic Recourse</strong> and <strong>Fairness</strong> remain under-explored. This prototype serves as an empirical demonstration that resolving the Rashomon set is not merely an optimization problem, but a deeply normative one. When a rejected credit applicant asks <em>"What must I do to be approved?"</em>, the counterfactual explanation they receive is entirely arbitrary, bounded only by the practitioner's implicit model selection.
     </p>
-</div>
+</section>
 
-<div class="card-grid" style="margin-bottom: 2rem;">
-    <div class="card">
-        <h3 style="color: var(--accent-cyan); font-size: 1.1rem; margin-bottom: 1rem;">1. Predictive Instability</h3>
-        <p style="line-height: 1.6; color: var(--text-secondary); font-size: 0.95rem;">
+<section class="content-grid three-column">
+    <div class="panel research-step">
+        <span class="step-number">1</span>
+        <h2>Predictive Instability</h2>
+        <p>
             By sweeping hyperparameter grids across diverse model families (Logistic Regression, Decision Trees, Ensembles), we isolate a "Rashomon Set" of models within a 1% tolerance of the empirical maximum accuracy. Our instability analysis reveals that these models strongly disagree on individual predictions. A subset of applicants exist in a state of <em>predictive limbo</em>, where exactly half of the near-optimal models approve them, and half reject them.
         </p>
     </div>
     
-    <div class="card">
-        <h3 style="color: var(--accent-rose); font-size: 1.1rem; margin-bottom: 1rem;">2. Recourse Divergence</h3>
-        <p style="line-height: 1.6; color: var(--text-secondary); font-size: 0.95rem;">
+    <div class="panel research-step">
+        <span class="step-number">2</span>
+        <h2>Recourse Divergence</h2>
+        <p>
             Using DiCE (Diverse Counterfactual Explanations) alongside SHAP (SHapley Additive exPlanations), we demonstrate that recourse is highly model-dependent. A Logistic Regression model might suggest an applicant reduce their `bill_amt` by $500, while a mathematically equivalent Random Forest requires the same applicant to increase their `pay_amt` by $2,000. This shatters the illusion of a unique, actionable path to recourse.
         </p>
     </div>
     
-    <div class="card">
-        <h3 style="color: var(--success); font-size: 1.1rem; margin-bottom: 1rem;">3. Fairness as Model Selection</h3>
-        <p style="line-height: 1.6; color: var(--text-secondary); font-size: 0.95rem;">
+    <div class="panel research-step">
+        <span class="step-number">3</span>
+        <h2>Fairness as Model Selection</h2>
+        <p>
             When auditing the Rashomon set for Demographic Parity and Equalized Odds, we find severe variance in disparate impact. The model with the absolute highest accuracy is rarely the fairest. By actively searching the Rashomon set, practitioners can identify near-optimal models that significantly reduce disparate impact without a statistically significant drop in predictive utility.
         </p>
     </div>
-</div>
+</section>
 
-<div class="card" style="margin-bottom: 2rem;">
-    <h3 style="font-size: 1.3rem; margin-bottom: 1rem; color: var(--text-primary);">PhD Project Implications</h3>
-    <p style="line-height: 1.8; color: var(--text-secondary);">
+<section class="panel narrative-panel">
+    <h2>PhD Project Implications</h2>
+    <p>
         This dashboard serves as the foundation for exploring <strong>Robust Recourse</strong>. If an applicant acts upon a counterfactual explanation, there is no guarantee that the financial institution won't switch to a different model in the Rashomon set by the time the applicant reapplies, rendering their effort useless. 
-        <br><br>
+    </p>
+    <p>
         Future research must develop algorithms that generate <em>multi-model robust recourse</em>—counterfactuals that satisfy the approval boundary for the intersection of the entire Rashomon set, ensuring causal feasibility and reliability for marginalized applicants.
     </p>
-</div>
+</section>
 
 {% endblock %}
