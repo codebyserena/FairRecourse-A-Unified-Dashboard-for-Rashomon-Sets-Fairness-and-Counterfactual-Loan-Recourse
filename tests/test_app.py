@@ -21,6 +21,12 @@ class DashboardSmokeTests(unittest.TestCase):
                 self.assertEqual(response.status_code, 200)
                 self.assertIn(b'FairRecourse Dashboard', response.data)
 
+    def test_download_model_metrics(self):
+        response = self.client.get('/download/model-metrics')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('text/csv', response.content_type)
+        response.close()
+
 
 if __name__ == '__main__':
     unittest.main()

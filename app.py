@@ -1,6 +1,7 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, send_file
 import pandas as pd
 import os
+import socket
 
 app = Flask(__name__)
 
@@ -16,6 +17,15 @@ OPTIONAL_ARTIFACTS = {
     'fairness': 'artifacts/rashomon_fairness.csv',
     'fairness_summary': 'artifacts/fairness_summary.csv',
     'shap': 'artifacts/shap_values.csv',
+}
+
+DOWNLOADABLE_ARTIFACTS = {
+    'model-metrics': 'artifacts/models_metrics.csv',
+    'rashomon-set': 'artifacts/rashomon_set.csv',
+    'unstable-applicants': 'artifacts/applicant_results.csv',
+    'fairness-audit': 'artifacts/rashomon_fairness.csv',
+    'recourse-results': 'artifacts/multi_model_cfs.csv',
+    'shap-values': 'artifacts/shap_values.csv',
 }
 
 
@@ -85,6 +95,14 @@ def overview():
         .sort_values('best_accuracy', ascending=False)
         .to_dict(orient='records')
     )
+    artifact_links = [
+        {'label': 'Model Metrics', 'endpoint': 'model-metrics'},
+        {'label': 'Rashomon Set', 'endpoint': 'rashomon-set'},
+        {'label': 'Unstable Applicants', 'endpoint': 'unstable-applicants'},
+        {'label': 'Fairness Audit', 'endpoint': 'fairness-audit'},
+        {'label': 'Recourse Results', 'endpoint': 'recourse-results'},
+        {'label': 'SHAP Values', 'endpoint': 'shap-values'},
+    ]
     
     metrics_data = data['metrics'].to_dict(orient='records')
     
@@ -96,6 +114,7 @@ def overview():
                           rashomon_share=f"{rashomon_share:.0%}",
                           best_model=best_model,
                           family_stats=family_stats,
+                          artifact_links=artifact_links,
                           metrics_data=metrics_data)
 
 @app.route('/rashomon')
@@ -136,12 +155,24 @@ def recourse_view():
         grouped_cfs[model_name].append(cf)
 
     changed_counts = {}
+    example_change = None
     for model_name, model_cfs in grouped_cfs.items():
         changed_counts[model_name] = sum(
             1
             for key, value in model_cfs[0].items()
             if key not in ['default', 'model_name', 'family'] and query.get(key) != value
         )
+
+        if example_change is None:
+            for key, value in model_cfs[0].items():
+                if key not in ['default', 'model_name', 'family'] and query.get(key) != value:
+                    example_change = {
+                        'model_name': model_name,
+                        'feature': key,
+                        'current_value': query.get(key),
+                        'suggested_value': value,
+                    }
+                    break
         
     return render_template(
         'recourse.html',
@@ -149,6 +180,7 @@ def recourse_view():
         query=query,
         shap=shap_vals,
         changed_counts=changed_counts,
+        example_change=example_change,
     )
 
 @app.route('/fairness')
@@ -179,5 +211,26 @@ def fairness_view():
 def summary_view():
     return render_template('summary.html')
 
+
+@app.route('/download/<artifact_name>')
+def download_artifact(artifact_name):
+    path = DOWNLOADABLE_ARTIFACTS.get(artifact_name)
+    if path is None or not os.path.exists(path):
+        return _artifact_error("That artifact is not available.")
+    return send_file(path, as_attachment=True)
+
+
+def find_available_port(start_port=5001, max_attempts=50):
+    for port in range(start_port, start_port + max_attempts):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            if sock.connect_ex(('127.0.0.1', port)) != 0:
+                return port
+    raise RuntimeError(f"No available port found between {start_port} and {start_port + max_attempts - 1}.")
+
+
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    preferred_port = int(os.environ.get('PORT', 5001))
+    port = find_available_port(preferred_port)
+    if port != preferred_port:
+        print(f"Port {preferred_port} is in use. Starting on port {port} instead.")
+    app.run(debug=True, port=port)

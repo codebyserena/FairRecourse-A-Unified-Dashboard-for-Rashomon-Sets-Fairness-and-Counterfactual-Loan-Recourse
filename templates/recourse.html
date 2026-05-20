@@ -65,6 +65,31 @@
     </div>
 </section>
 
+<section class="panel">
+    <div class="section-heading">
+        <h2>Feature Name Guide</h2>
+        <span class="pill">How to read values</span>
+    </div>
+    <div class="feature-guide">
+        <div>
+            <strong>pay_1 to pay_6</strong>
+            <span>Recent repayment status. Higher positive values usually indicate delayed payment.</span>
+        </div>
+        <div>
+            <strong>bill_amt1 to bill_amt6</strong>
+            <span>Bill statement amounts across recent months.</span>
+        </div>
+        <div>
+            <strong>pay_amt1 to pay_amt6</strong>
+            <span>Previous payment amounts across recent months.</span>
+        </div>
+        <div>
+            <strong>limit_bal</strong>
+            <span>The applicant's credit limit balance.</span>
+        </div>
+    </div>
+</section>
+
 <section class="recourse-grid">
     {% for model_name, cfs in grouped_cfs.items() %}
     <div class="panel recourse-panel">
@@ -94,6 +119,12 @@
     How to read this section: each model card shows the feature values that would need to change for the selected
     rejected applicant to move toward approval. The crossed-out value is the current applicant value, and the
     highlighted value is the counterfactual value suggested by that model.
+    {% if example_change %}
+    For example, under {{ example_change.model_name }}, <strong>{{ example_change.feature }}</strong> changing from
+    <span class="old-value">{{ example_change.current_value }}</span> to
+    <span class="new-value">{{ example_change.suggested_value }}</span> means that this model found the applicant
+    would be closer to an approval decision if that feature had the suggested value.
+    {% endif %}
 </p>
 
 <script>

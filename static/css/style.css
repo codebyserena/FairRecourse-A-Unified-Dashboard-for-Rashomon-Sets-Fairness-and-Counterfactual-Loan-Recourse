@@ -363,6 +363,43 @@ h1 {
     background: rgba(255, 255, 255, 0.03);
 }
 
+.download-grid,
+.feature-guide {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+.download-link,
+.feature-guide div {
+    color: var(--text-secondary);
+    text-decoration: none;
+    padding: 0.85rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.download-link:hover {
+    color: var(--text-primary);
+    border-color: rgba(20, 184, 166, 0.45);
+    background: rgba(20, 184, 166, 0.09);
+}
+
+.feature-guide div {
+    display: grid;
+    gap: 0.35rem;
+}
+
+.feature-guide strong {
+    color: var(--text-primary);
+}
+
+.feature-guide span {
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
 .old-value {
     color: var(--muted);
     text-decoration: line-through;
@@ -413,7 +450,9 @@ h1 {
     .metric-grid.three,
     .content-grid.two-column,
     .content-grid.three-column,
-    .recourse-grid {
+    .recourse-grid,
+    .download-grid,
+    .feature-guide {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
@@ -460,7 +499,9 @@ h1 {
     .metric-grid.three,
     .content-grid.two-column,
     .content-grid.three-column,
-    .recourse-grid {
+    .recourse-grid,
+    .download-grid,
+    .feature-guide {
         grid-template-columns: 1fr;
     }
 

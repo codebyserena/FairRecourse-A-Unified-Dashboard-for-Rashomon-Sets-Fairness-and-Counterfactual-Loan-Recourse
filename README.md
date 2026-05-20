@@ -46,9 +46,17 @@ Once the pipeline finishes generating the artifacts, you can start the Flask das
 python3 app.py
 ```
 
+By default, the app tries port `5001`. If that port is busy, it automatically starts on the next available port and prints the URL in the terminal. To request a different starting port:
+
+```bash
+PORT=5050 python3 app.py
+```
+
 ### 3. View the App
 Open your web browser and navigate to:
-`http://127.0.0.1:5000`
+`http://127.0.0.1:5001`
+
+If the terminal says it started on a different port, use that printed URL instead.
 
 ## Project Structure
 - `src/`: The Python pipeline scripts.

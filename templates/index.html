@@ -82,6 +82,18 @@
     <div id="accuracyLandscape" class="chart"></div>
 </section>
 
+<section class="panel">
+    <div class="section-heading">
+        <h2>Download Outputs</h2>
+        <span class="pill">CSV artifacts</span>
+    </div>
+    <div class="download-grid">
+        {% for artifact in artifact_links %}
+        <a class="download-link" href="/download/{{ artifact.endpoint }}">{{ artifact.label }}</a>
+        {% endfor %}
+    </div>
+</section>
+
 <script>
     const metricsData = {{ metrics_data | tojson }};
 
