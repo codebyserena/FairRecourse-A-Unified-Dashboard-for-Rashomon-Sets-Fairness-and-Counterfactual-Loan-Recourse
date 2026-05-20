@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
 <header>
-    <p class="eyebrow">Credit Decision Research Prototype</p>
-    <h1>Model Choice Changes the Story</h1>
-    <p class="subtitle">A near-optimal model pool can look stable in aggregate while disagreeing sharply for individual applicants.</p>
+    <p class="eyebrow">Credit Risk ML Dashboard</p>
+    <h1>Compare Models, Fairness, and Recourse</h1>
+    <p class="subtitle">An end-to-end dashboard for training credit-risk models, checking fairness, explaining predictions, and comparing recourse suggestions.</p>
 </header>
 
 <section class="metric-grid">
@@ -31,10 +31,11 @@
 
 <section class="content-grid two-column">
     <div class="panel narrative-panel">
-        <h2>Research Insight</h2>
+        <h2>Project Goal</h2>
         <p>
-            Many models achieve near-identical test accuracy, yet still disagree on individual credit decisions.
-            The project makes that disagreement visible, then follows it into recourse and fairness outcomes.
+            The goal is to show more than model accuracy. The dashboard compares how different models perform,
+            where they disagree, how fair they are across groups, and what changes could help a rejected applicant
+            move toward approval.
         </p>
         <div class="insight-list">
             <span>Rashomon set: <strong>{{ rashomon_size }}</strong> models</span>

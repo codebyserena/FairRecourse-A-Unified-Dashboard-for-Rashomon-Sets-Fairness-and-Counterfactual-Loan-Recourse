@@ -1,54 +1,63 @@
 {% extends "base.html" %}
 {% block content %}
 <header>
-    <p class="eyebrow">Research Narrative</p>
-    <h1>Research Summary</h1>
-    <p class="subtitle">The Illusion of Unique Recourse in Algorithmic Lending</p>
+    <p class="eyebrow">Project Overview</p>
+    <h1>Project Summary</h1>
+    <p class="subtitle">A practical dashboard for credit-risk modeling, fairness checks, explainability, and recourse.</p>
 </header>
 
 <section class="panel narrative-panel">
-    <h2>Abstract & Motivation</h2>
+    <h2>What This Project Does</h2>
     <p>
-        In contemporary machine learning for high-stakes domains (e.g., credit lending, criminal justice), researchers frequently encounter the <strong>Rashomon Effect</strong>—a multiplicity of models that achieve statistically indistinguishable out-of-sample performance yet employ fundamentally different internal logic. 
+        FairRecourse is a machine learning dashboard for analyzing credit-risk decisions. It trains multiple models,
+        compares their accuracy, checks fairness across sensitive groups, explains predictions, and generates
+        counterfactual suggestions for applicants who are predicted to be rejected.
     </p>
     <p>
-        While predictive multiplicity is well-documented, its downstream effects on <strong>Algorithmic Recourse</strong> and <strong>Fairness</strong> remain under-explored. This prototype serves as an empirical demonstration that resolving the Rashomon set is not merely an optimization problem, but a deeply normative one. When a rejected credit applicant asks <em>"What must I do to be approved?"</em>, the counterfactual explanation they receive is entirely arbitrary, bounded only by the practitioner's implicit model selection.
+        The project is built as a complete workflow: data cleaning, preprocessing, model training, fairness auditing,
+        explainability, recourse generation, and an interactive Flask dashboard for presenting the results.
     </p>
 </section>
 
 <section class="content-grid three-column">
-    <div class="panel research-step">
+    <div class="panel project-step">
         <span class="step-number">1</span>
-        <h2>Predictive Instability</h2>
+        <h2>Model Comparison</h2>
         <p>
-            By sweeping hyperparameter grids across diverse model families (Logistic Regression, Decision Trees, Ensembles), we isolate a "Rashomon Set" of models within a 1% tolerance of the empirical maximum accuracy. Our instability analysis reveals that these models strongly disagree on individual predictions. A subset of applicants exist in a state of <em>predictive limbo</em>, where exactly half of the near-optimal models approve them, and half reject them.
+            The pipeline trains several model families, including Logistic Regression, Decision Trees, Random Forests,
+            and Gradient Boosting. The dashboard compares their accuracy and highlights models that perform close to
+            the best result.
         </p>
     </div>
     
-    <div class="panel research-step">
+    <div class="panel project-step">
         <span class="step-number">2</span>
-        <h2>Recourse Divergence</h2>
+        <h2>Fairness & Explainability</h2>
         <p>
-            Using DiCE (Diverse Counterfactual Explanations) alongside SHAP (SHapley Additive exPlanations), we demonstrate that recourse is highly model-dependent. A Logistic Regression model might suggest an applicant reduce their `bill_amt` by $500, while a mathematically equivalent Random Forest requires the same applicant to increase their `pay_amt` by $2,000. This shatters the illusion of a unique, actionable path to recourse.
+            Fairlearn is used to calculate fairness gaps across sex, education, and age bands. SHAP is used to show
+            which features contribute most to a model prediction, making the model output easier to interpret.
         </p>
     </div>
     
-    <div class="panel research-step">
+    <div class="panel project-step">
         <span class="step-number">3</span>
-        <h2>Fairness as Model Selection</h2>
+        <h2>Recourse Suggestions</h2>
         <p>
-            When auditing the Rashomon set for Demographic Parity and Equalized Odds, we find severe variance in disparate impact. The model with the absolute highest accuracy is rarely the fairest. By actively searching the Rashomon set, practitioners can identify near-optimal models that significantly reduce disparate impact without a statistically significant drop in predictive utility.
+            DiCE is used to generate counterfactual examples. These suggestions show which feature values would need
+            to change for a rejected applicant to move toward approval under different models.
         </p>
     </div>
 </section>
 
 <section class="panel narrative-panel">
-    <h2>PhD Project Implications</h2>
+    <h2>Why It Is Useful</h2>
     <p>
-        This dashboard serves as the foundation for exploring <strong>Robust Recourse</strong>. If an applicant acts upon a counterfactual explanation, there is no guarantee that the financial institution won't switch to a different model in the Rashomon set by the time the applicant reapplies, rendering their effort useless. 
+        This project is useful because it brings together the parts of a responsible ML workflow that are often checked
+        separately: model performance, fairness, explainability, and applicant-level recourse.
     </p>
     <p>
-        Future research must develop algorithms that generate <em>multi-model robust recourse</em>—counterfactuals that satisfy the approval boundary for the intersection of the entire Rashomon set, ensuring causal feasibility and reliability for marginalized applicants.
+        Instead of only showing which model is most accurate, the dashboard helps compare the tradeoffs between accuracy,
+        fairness, and actionability in a clear visual format.
     </p>
 </section>
 

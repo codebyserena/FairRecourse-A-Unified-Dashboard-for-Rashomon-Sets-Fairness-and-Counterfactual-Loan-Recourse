@@ -52,7 +52,7 @@ The core engine is executed sequentially. Each script reads data, performs compu
 - Selects the most unstable applicant whose majority model decision is rejection or an exact approve/reject split.
 - Generates required feature changes (e.g., "increase pay_amt by X") to flip their decision from Reject to Approve.
 - Restricts mutable continuous recourse suggestions to the observed training-data range for each feature.
-- **Multi-Model Recourse**: Performs this generation across 3 different models in the Rashomon set to prove that counterfactual requirements vary wildly depending on the model chosen (saved to `artifacts/multi_model_cfs.csv`).
+- **Multi-Model Recourse**: Performs this generation across 3 different models in the Rashomon set to compare how suggested feature changes differ depending on the model chosen (saved to `artifacts/multi_model_cfs.csv`).
 
 ### 7. `src/explainability.py`
 **Purpose**: Generates Feature Importance.

@@ -1,6 +1,18 @@
 # FairRecourse
 
-A credit decision research dashboard that demonstrates how equally accurate machine learning models (the Rashomon set) can make conflicting decisions for individual applicants, leading to varying counterfactual recourse and fairness implications.
+FairRecourse is a credit-risk machine learning dashboard built to compare model performance, fairness, explanations, and counterfactual recourse in one place. It trains multiple classification models, finds near-best models, and shows how their decisions can differ for the same applicant.
+
+**Built by:** Serena Mendanha
+
+## Features
+
+- Trains Logistic Regression, Decision Tree, Random Forest, and Gradient Boosting models.
+- Compares model accuracy and identifies near-best models.
+- Shows applicants where similar models disagree on approval or rejection.
+- Audits fairness across sex, education, and age bands using Fairlearn.
+- Explains model decisions with SHAP feature importance.
+- Generates counterfactual recourse suggestions with DiCE.
+- Presents results in a Flask and Plotly dashboard.
 
 ## Setup & Installation
 
@@ -19,13 +31,13 @@ A credit decision research dashboard that demonstrates how equally accurate mach
 ## Running the Project
 
 ### 1. Execute the Pipeline
-Before running the dashboard, you must run the data pipeline to train the models, find the Rashomon set, generate counterfactuals, compute SHAP values, and audit fairness.
+Before running the dashboard, run the data pipeline to clean the data, train models, calculate fairness metrics, generate explanations, and create recourse outputs.
 
 Run this command from the root of the project:
 ```bash
 python3 run_pipeline.py
 ```
-*(Note: Training the models may take 2-5 minutes depending on your machine).*
+Training the models may take a few minutes depending on your machine.
 
 ### 2. Start the Dashboard
 Once the pipeline finishes generating the artifacts, you can start the Flask dashboard:
@@ -44,6 +56,7 @@ Open your web browser and navigate to:
 - `templates/` & `static/`: The frontend UI (HTML/CSS).
 - `artifacts/`: Generated models, metrics, SHAP values, and counterfactuals.
 - `data/`: The raw and processed UCI Credit dataset.
+- `tests/`: Basic tests for the dashboard and pipeline helpers.
 
 ## Development Checks
 

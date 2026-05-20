@@ -90,6 +90,12 @@
     {% endfor %}
 </section>
 
+<p class="helper-note">
+    How to read this section: each model card shows the feature values that would need to change for the selected
+    rejected applicant to move toward approval. The crossed-out value is the current applicant value, and the
+    highlighted value is the counterfactual value suggested by that model.
+</p>
+
 <script>
     const groupedCfs = {{ grouped_cfs | tojson }};
     const query = {{ query | tojson }};

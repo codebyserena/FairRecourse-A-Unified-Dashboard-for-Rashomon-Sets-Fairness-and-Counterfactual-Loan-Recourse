@@ -373,9 +373,19 @@ h1 {
     font-weight: 800;
 }
 
-.research-step {
+.project-step {
     position: relative;
     padding-top: 3.2rem;
+}
+
+.helper-note {
+    color: var(--text-secondary);
+    background: rgba(20, 184, 166, 0.08);
+    border: 1px solid rgba(20, 184, 166, 0.25);
+    border-radius: 8px;
+    padding: 1rem 1.1rem;
+    line-height: 1.6;
+    margin-top: 1rem;
 }
 
 .step-number {
